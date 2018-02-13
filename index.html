@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, intial-scale=1.0">
+  <title>Promises Chapters example by (google)</title>
+  <style>
+  @keyframes spinner {
+    to {transform: rotate(360deg);}
+  }
+   
+  .spinner:before {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    border-top-color: #333;
+    animation: spinner .6s linear infinite;
+  }
+  </style>
+</head>
+<body>
+  <div class="story">
+    <h1 class="story__title"></h1>
+    <div class="story__content"></div>
+    <span class="story__spinner spinner"></span>
+  </div>
+  <script id="chapterTemplate" type="text/x-underscore">
+    <hr>
+    <h2><%= chapter %></h2>
+    <p><%= text %></p>
+    <hr>
+  </script>
+  <script src="utils.js"></script>
+  <script src="dom-utils.js"></script>
+  <script src="http://underscorejs.ru/underscore-min.js"></script>
+  <script src="view.js"></script>
+  <script>
+    var story = new StoryView();
+   
+    getJSON('story.json')
+    .then(function(data) {
+      story.setTitle(data.title);
+
+      return Promise.all(data.chapterURLs.map(getJSON));    
+    })
+    .then(function(chapters) {
+      chapters.forEach( function(chapter) {
+        story.addChapter(chapter);
+      });
+    })
+    .catch(function(error) {
+      console.log('Failed!', error);
+      story.showError(error);
+    })
+    .then(function() {
+      story.hideSpinner();
+    });
+  </script>
+</body>
+</html>
